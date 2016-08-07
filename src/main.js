@@ -4,32 +4,68 @@ import { createStore } from 'redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-const toggleTodo = (todo) => {
-  return Object.assign({}, todo, {
-    completed: !todo.completed
-  })
-}
+const todos = (state = [], action) => {
+  switch(action.type) {
+    case 'ADD_TODO':
+      newTodo = {id: action.id, text: action.text, completed: false}
+      return state.concat([newTodo]);
+    default:
+      return state;
+  }
+};
 
-const testToggleTodo = () => {
-  const todoBefore = {
+const testAddTodo = () => {
+  const stateBefore = [];
+  const action = {
+    type: 'ADD_TODO',
     id: 0,
-    text: 'Learn Redux',
-    completed: false
+    text: 'Learn Redux'
   };
-  const todoAfter = {
-    id: 0,
-    text: 'Learn Redux',
-    completed: true
-  };
-  deepFreeze(todoBefore)
+  const stateAfter = [
+    {
+      id: 0,
+      text: 'Learn Redux',
+      completed: false
+    }
+  ];
+  deepFreeze(stateBefore)
+  deepFreeze(action)
 
   expect(
-    toggleTodo(todoBefore)
-  ).toEqual(todoAfter)
-}
+    todos(stateBefore, action)
+  ).toEqual(stateAfter)
+};
 
-testToggleTodo();
-console.log("Tests passed!");
+console.log("TESTS PASSED AWWW YISS");
+
+////////////////////////////////
+
+// const toggleTodo = (todo) => {
+//   return Object.assign({}, todo, {
+//     completed: !todo.completed
+//   })
+// }
+//
+// const testToggleTodo = () => {
+//   const todoBefore = {
+//     id: 0,
+//     text: 'Learn Redux',
+//     completed: false
+//   };
+//   const todoAfter = {
+//     id: 0,
+//     text: 'Learn Redux',
+//     completed: true
+//   };
+//   deepFreeze(todoBefore)
+//
+//   expect(
+//     toggleTodo(todoBefore)
+//   ).toEqual(todoAfter)
+// }
+//
+// testToggleTodo();
+// console.log("Tests passed!");
 
 /////////////////////////////////
 

@@ -7,8 +7,17 @@ import ReactDOM from 'react-dom';
 const todos = (state = [], action) => {
   switch(action.type) {
     case 'ADD_TODO':
-      newTodo = {id: action.id, text: action.text, completed: false}
+      let newTodo = {
+        id: action.id,
+        text: action.text,
+        completed: false
+      }
       return state.concat([newTodo]);
+    case 'TOGGLE_COMPLETED':
+      return state.map(todo => {
+        if(todo.id !== action.id) return todo;
+        return Object.assign({}, todo, {completed: !todo.completed});
+      })
     default:
       return state;
   }
@@ -35,6 +44,43 @@ const testAddTodo = () => {
     todos(stateBefore, action)
   ).toEqual(stateAfter)
 };
+
+const testToggleTodo = () => {
+  const stateBefore = [
+    {
+      id: 0,
+      text: 'Learn Redux',
+      completed: false
+    },
+    {
+      id: 1,
+      text: 'Go Shopping',
+      completed: false
+    }
+  ];
+  const stateAfter = [
+   {
+      id: 0,
+      text: 'Learn Redux',
+      completed: true
+    },
+    {
+      id: 1,
+      text: 'Go Shopping',
+      completed: false
+    }
+  ]
+  const action = { type: 'TOGGLE_COMPLETED', id: 0 }
+  deepFreeze(stateBefore)
+  deepFreeze(action)
+
+  expect(
+    todos(stateBefore, action)
+  ).toEqual(stateAfter)
+}
+
+testAddTodo();
+testToggleTodo();
 
 console.log("TESTS PASSED AWWW YISS");
 

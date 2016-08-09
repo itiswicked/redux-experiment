@@ -1,7 +1,7 @@
 import expect from 'expect';
 import deepFreeze from 'deep-freeze';
 import { createStore } from 'redux';
-// import { combineReducers } from 'redux';
+import { combineReducers } from 'redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -44,21 +44,53 @@ const visibilityFilter = (state = 'SHOW_ALL', action) => {
   }
 }
 
-const combineReducers = (reducers) => {
-  return (state = {}, action) => {
-    return Object.keys(reducers).reduce((nextState, key) => {
-        nextState[key] = reducers[key](
-          state[key],
-          action
-        );
-        return nextState;
-      },
-      {}
+let nextTodoId = 0;
+class TodoApp extends React.Component {
+
+  render() {
+    const dispatchClickAction = () => {
+      store.dispatch({
+        type: 'ADD_TODO',
+        text: this.input.value,
+        id: nextTodoId++
+      })
+      this.input.value = '';
+    };
+
+    let todos = this.props.todos.map(todo =>
+      <li key={todo.id}>
+        {todo.text}
+      </li>
+    );
+
+    return (
+      <div>
+        <input ref={node => {
+          this.input = node;
+        }} />
+        <button onClick={dispatchClickAction}>
+          Add Todo
+        </button>
+        <ul>
+          {todos}
+        </ul>
+      </div>
     );
   }
 }
 
 const todoApp = combineReducers({ todos, visibilityFilter });
+const store = createStore(todoApp);
+
+const render = () => {
+  ReactDOM.render(
+    <TodoApp todos={store.getState().todos}/>,
+    document.getElementById('app')
+  )
+}
+
+store.subscribe(render);
+render();
 
 // const todoApp = (state = {}, action) => {
 //   return {
@@ -73,53 +105,66 @@ const todoApp = combineReducers({ todos, visibilityFilter });
 //   };
 // }
 
-const store = createStore(todoApp);
 
-console.log('Initial State:');
-console.log(store.getState());
-console.log("--------------");
+// const combineReducers = (reducers) => {
+//   return (state = {}, action) => {
+//     return Object.keys(reducers).reduce((nextState, key) => {
+//         nextState[key] = reducers[key](
+//           state[key],
+//           action
+//         );
+//         return nextState;
+//       },
+//       {}
+//     );
+//   }
+// }
 
-console.log('Dispatching ADD_TODO');
-store.dispatch({
-  type: 'ADD_TODO',
-  id: 0,
-  text: 'Go shopping'
-});
-
-console.log('Updated State');
-console.log(store.getState());
-console.log("--------------");
-
-console.log('Dispatching ADD_TODO');
-store.dispatch({
-  type: 'ADD_TODO',
-  id: 1,
-  text: 'Learn Redux'
-});
-
-console.log('Updated State');
-console.log(store.getState());
-console.log("--------------");
-
-console.log('Dispatching TOGGLE_TODO');
-store.dispatch({
-  type: 'TOGGLE_COMPLETED',
-  id: 0
-});
-
-console.log('Updated State');
-console.log(store.getState());
-console.log("--------------");
-
-console.log('Dispatching SET_VISIBILITY_FILTER');
-store.dispatch({
-  type: 'SET_VISIBILITY_FILTER',
-  filter: 'SHOW_COMPLETED'
-})
-
-console.log('Updated filtered state:');
-console.log(store.getState());
-console.log("--------------");
+// console.log('Initial State:');
+// console.log(store.getState());
+// console.log("--------------");
+//
+// console.log('Dispatching ADD_TODO');
+// store.dispatch({
+//   type: 'ADD_TODO',
+//   id: 0,
+//   text: 'Go shopping'
+// });
+//
+// console.log('Updated State');
+// console.log(store.getState());
+// console.log("--------------");
+//
+// console.log('Dispatching ADD_TODO');
+// store.dispatch({
+//   type: 'ADD_TODO',
+//   id: 1,
+//   text: 'Learn Redux'
+// });
+//
+// console.log('Updated State');
+// console.log(store.getState());
+// console.log("--------------");
+//
+// console.log('Dispatching TOGGLE_TODO');
+// store.dispatch({
+//   type: 'TOGGLE_COMPLETED',
+//   id: 0
+// });
+//
+// console.log('Updated State');
+// console.log(store.getState());
+// console.log("--------------");
+//
+// console.log('Dispatching SET_VISIBILITY_FILTER');
+// store.dispatch({
+//   type: 'SET_VISIBILITY_FILTER',
+//   filter: 'SHOW_COMPLETED'
+// })
+//
+// console.log('Updated filtered state:');
+// console.log(store.getState());
+// console.log("--------------");
 
 // const testAddTodo = () => {
 //   const stateBefore = [];

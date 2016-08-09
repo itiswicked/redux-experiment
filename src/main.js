@@ -1,7 +1,7 @@
 import expect from 'expect';
 import deepFreeze from 'deep-freeze';
 import { createStore } from 'redux';
-import { combineReducers } from 'redux';
+// import { combineReducers } from 'redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -41,6 +41,20 @@ const visibilityFilter = (state = 'SHOW_ALL', action) => {
       return action.filter;
     default:
       return state;
+  }
+}
+
+const combineReducers = (reducers) => {
+  return (state = {}, action) => {
+    return Object.keys(reducers).reduce((nextState, key) => {
+        nextState[key] = reducers[key](
+          state[key],
+          action
+        );
+        return nextState;
+      },
+      {}
+    );
   }
 }
 

@@ -44,10 +44,45 @@ const visibilityFilter = (state = 'SHOW_ALL', action) => {
   }
 }
 
+const getVisibleTodos = (todos, filter) => {
+  switch (filter) {
+    case 'SHOW_ALL':
+      return todos
+    case 'SHOW_ACTIVE':
+      return todos.filter(todo => !todo.completed);
+    case 'SHOW_COMPLETED':
+      return todos.filter(todo => todo.completed);
+    default:
+      return todos;
+  }
+}
+
+const FilterLink = ({filter, currentFilter, children}) => {
+  let clickHandler = (e) => {
+    e.preventDefault();
+    store.dispatch({
+      type: 'SET_VISIBILITY_FILTER',
+      filter
+    });
+  };
+  let style = filter == currentFilter ? 'underline' : 'none'
+  return (
+    <a href="#" onClick={clickHandler} style={{textDecoration: style}}>
+      {children}
+    </a>
+  );
+}
+
 let nextTodoId = 0;
 class TodoApp extends React.Component {
 
   render() {
+    const {todos, visibilityFilter } = this.props;
+    const visibleTodos = getVisibleTodos(
+      todos,
+      visibilityFilter
+    );
+
     const dispatchClickAction = () => {
       store.dispatch({
         type: 'ADD_TODO',
@@ -57,9 +92,7 @@ class TodoApp extends React.Component {
       this.input.value = '';
     };
 
-    ;
-
-    let todos = this.props.todos.map(todo => {
+    let todoComps = visibleTodos.map(todo => {
       let style = todo.completed ? "line-through" : "none"
       return(
         <li key={todo.id} onClick={() => {
@@ -82,8 +115,21 @@ class TodoApp extends React.Component {
           Add Todo
         </button>
         <ul>
-          {todos}
+          {todoComps}
         </ul>
+        <p>
+          <FilterLink filter="SHOW_ALL" currentFilter={visibilityFilter}>
+           All
+          </FilterLink>
+          {' '}
+          <FilterLink filter="SHOW_ACTIVE" currentFilter={visibilityFilter}>
+            Active
+          </FilterLink>
+          {' '}
+          <FilterLink filter="SHOW_COMPLETED" currentFilter={visibilityFilter}>
+            Completed
+          </FilterLink>
+        </p>
       </div>
     );
   }
@@ -94,7 +140,7 @@ const store = createStore(todoApp);
 
 const render = () => {
   ReactDOM.render(
-    <TodoApp todos={store.getState().todos}/>,
+    <TodoApp {...store.getState()}/>,
     document.getElementById('app')
   )
 }

@@ -72,6 +72,7 @@ const Link = ({active, children, onClick }) => {
 
 class FilterLink extends React.Component {
   componentDidMount() {
+    const { store } = this.props;
     this.unsubscribe = store.subscribe(() =>
       this.forceUpdate()
     );
@@ -82,6 +83,7 @@ class FilterLink extends React.Component {
   }
 
   render() {
+    const { store } = this.props;
     const props = this.props;
     const state = store.getState();
     let active = props.filter == state.visibilityFilter;
@@ -100,25 +102,25 @@ class FilterLink extends React.Component {
   }
 }
 
-const Footer = () => {
+const Footer = ({ store }) => {
   return (
     <div>
-      <FilterLink filter="SHOW_ALL">
+      <FilterLink filter="SHOW_ALL" store={store} >
        All
       </FilterLink>
       {' '}
-      <FilterLink filter="SHOW_ACTIVE">
+      <FilterLink filter="SHOW_ACTIVE" store={store} >
         Active
       </FilterLink>
       {' '}
-      <FilterLink filter="SHOW_COMPLETED">
+      <FilterLink filter="SHOW_COMPLETED" store={store} >
         Completed
       </FilterLink>
     </div>
   );
 }
 
-const AddTodo = () => {
+const AddTodo = ({ store }) => {
   let input;
 
   return(
@@ -171,6 +173,7 @@ const TodoList = ({ todos }) => {
 
 class VisibleTodoList extends React.Component {
   componentDidMount() {
+    const { store } = this.props;
     this.unsubscribe = store.subscribe(() =>
       this.forceUpdate()
     );
@@ -181,6 +184,7 @@ class VisibleTodoList extends React.Component {
   }
 
   render() {
+    const { store } = this.props;
     const props = this.props;
     const state = store.getState();
     const { todos, visibilityFilter } = state;
@@ -202,12 +206,12 @@ class VisibleTodoList extends React.Component {
 }
 
 let nextTodoId = 0;
-const TodoApp = () => {
+const TodoApp = ({ store }) => {
   return (
     <div>
-      <AddTodo />
-      <VisibleTodoList />
-      <Footer />
+      <AddTodo store={store} />
+      <VisibleTodoList store={store} />
+      <Footer store={store} />
     </div>
   );
 }
@@ -221,11 +225,9 @@ const TodoApp = () => {
 // }}
 
 const todoApp = combineReducers({ todos, visibilityFilter });
-const store = createStore(todoApp);
-
 
 ReactDOM.render(
-  <TodoApp />,
+  <TodoApp store={createStore(todoApp)}/>,
   document.getElementById('app')
 )
 

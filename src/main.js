@@ -1,7 +1,7 @@
 import expect from 'expect';
 import deepFreeze from 'deep-freeze';
-import { createStore } from 'redux';
-import { combineReducers } from 'redux';
+import { createStore, combineReducers } from 'redux';
+import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -72,7 +72,7 @@ const Link = ({active, children, onClick }) => {
 
 class FilterLink extends React.Component {
   componentDidMount() {
-    const { store } = this.props;
+    const { store } = this.context;
     this.unsubscribe = store.subscribe(() =>
       this.forceUpdate()
     );
@@ -160,9 +160,9 @@ const Todo = ({ completed, onClick, text, id }) => {
   )
 };
 
-const TodoList = ({ todos }) => {
+const TodoList = ({ todos }, context) => {
   let toggleCompleted = (id) => {
-    store.dispatch({
+    context.store.dispatch({
       type: 'TOGGLE_COMPLETED',
       id
     });
@@ -178,6 +178,10 @@ const TodoList = ({ todos }) => {
     </ul>
   );
 }
+
+TodoList.contextTypes = {
+  store: React.PropTypes.object
+};
 
 class VisibleTodoList extends React.Component {
   componentDidMount() {
@@ -227,38 +231,30 @@ const TodoApp = () => {
   );
 }
 
-// visibilityFilter={visibilityFilter}
-// setFilter={(filter) => {
-//     store.dispatch({
-//       type: 'SET_VISIBILITY_FILTER',
-//       filter
-//     });
-// }}
-
 const todoApp = combineReducers({ todos, visibilityFilter });
-
-class Provider extends Component {
-  getChildContext() {
-    return {
-      store: this.props.store
-    };
-  }
-
-  render() {
-    return this.props.children;
-  }
-}
-
-Provider.childContextType = {
-  store: React.propTypes.object
-};
 
 ReactDOM.render(
   <Provider store={createStore(todoApp)}>
     <TodoApp />
-  </Provider>
+  </Provider>,
   document.getElementById('app')
 )
+
+// class Provider extends Component {
+//   getChildContext() {
+//     return {
+//       store: this.props.store
+//     };
+//   }
+//
+//   render() {
+//     return this.props.children;
+//   }
+// }
+//
+// Provider.childContextType = {
+//   store: React.propTypes.object
+// };
 
 // const todoApp = (state = {}, action) => {
 //   return {

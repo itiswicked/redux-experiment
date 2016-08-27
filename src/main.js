@@ -70,37 +70,23 @@ const Link = ({active, children, onClick }) => {
   );
 }
 
-class FilterLink extends React.Component {
-  componentDidMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() =>
-      this.forceUpdate()
-    );
-  }
+const mapStateToLinkProps = (state, ownProps) => ({
+  active: ownProps.filter == state.visibilityFilter
+})
 
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
+const mapDispatchToLinkProps = (dispatch, ownProps) => ({
+  onClick: () => (
+    dispatch({
+      type: 'SET_VISIBILITY_FILTER',
+      filter: ownProps.filter
+    })
+  )
+});
 
-  render() {
-    const { store } = this.context;
-    const props = this.props;
-    const state = store.getState();
-    let active = props.filter == state.visibilityFilter;
-    const handleClick = () => (
-      store.dispatch({
-        type: 'SET_VISIBILITY_FILTER',
-        filter: props.filter
-      })
-    )
-
-    return (
-      <Link active={active} onClick={handleClick}>
-        {props.children}
-      </Link>
-    );
-  }
-}
+const FilterLink = connect(
+  mapStateToLinkProps,
+  mapDispatchToLinkProps
+)(Link)
 
 FilterLink.contextTypes = {
   store: React.PropTypes.object
@@ -180,13 +166,13 @@ TodoList.contextTypes = {
   store: React.PropTypes.object
 };
 
-const mapStateToToDoListProps = state => ({
+const mapStateToTodoListProps = state => ({
   todos: getVisibleTodos(
     state.todos,
     state.visibilityFilter
   )
 });
-const mapDispatchToToDoListProps = dispatch => ({
+const mapDispatchToTodoListProps = dispatch => ({
   onTodoClick: id => {
     dispatch({
       type: 'TOGGLE_TODO',
